@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"io/ioutil"
 
+	"github.com/defenseunicorns/pulumi-bigbang/crds/kubernetes/networking/v1beta1"
+	"github.com/defenseunicorns/pulumi-bigbang/pkg/api"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
-	"github.com/runyontr/pulumi-bigbang/crds/kubernetes/networking/v1beta1"
-	"github.com/runyontr/pulumi-bigbang/pkg/api"
 
 	corev1 "github.com/pulumi/pulumi-kubernetes/sdk/v3/go/kubernetes/core/v1"
 	helmv3 "github.com/pulumi/pulumi-kubernetes/sdk/v3/go/kubernetes/helm/v3"
