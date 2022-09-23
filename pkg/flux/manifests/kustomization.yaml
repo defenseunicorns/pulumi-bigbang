@@ -1,0 +1,3 @@
+# start with a default flux deployment
+bases:
+- git::https://repo1.dso.mil/platform-one/big-bang/bigbang.git//base/flux?ref=1.40.0
