@@ -1,10 +1,10 @@
 package main
 
 import (
+	"github.com/defenseunicorns/pulumi-bigbang/pkg/api"
+	bbv2 "github.com/defenseunicorns/pulumi-bigbang/pkg/corev2"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
-	"github.com/runyontr/pulumi-bigbang/pkg/api"
-	bbv2 "github.com/runyontr/pulumi-bigbang/pkg/corev2"
 )
 
 func main() {
@@ -49,8 +49,8 @@ func main() {
 							Cert     string "yaml:\"cert\""
 							CertFile string "yaml:\"certFile\""
 						}{
-							KeyFile:  "/Users/tom/Workspaces/defenseunicorns/pulumi/pulumi-bigbang/public.key",
-							CertFile: "/Users/tom/Workspaces/defenseunicorns/pulumi/pulumi-bigbang/public.cert",
+							KeyFile:  "../../public.key",
+							CertFile: "../../public.cert",
 						},
 					},
 				},

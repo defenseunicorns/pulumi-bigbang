@@ -7,12 +7,12 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/defenseunicorns/pulumi-bigbang/pkg/api"
+	v2 "github.com/defenseunicorns/pulumi-bigbang/pkg/corev2"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto/optdestroy"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto/optup"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
-	"github.com/runyontr/pulumi-bigbang/pkg/api"
-	v2 "github.com/runyontr/pulumi-bigbang/pkg/corev2"
 )
 
 func main() {

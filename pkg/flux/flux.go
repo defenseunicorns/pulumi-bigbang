@@ -1,9 +1,9 @@
 package flux
 
 import (
+	v2 "github.com/defenseunicorns/pulumi-bigbang/pkg/corev2"
 	"github.com/pulumi/pulumi-kubernetes/sdk/v3/go/kubernetes/kustomize"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
-	v2 "github.com/runyontr/pulumi-bigbang/pkg/corev2"
 )
 
 func DeployFlux(ctx *pulumi.Context) ([]pulumi.Resource, error) {

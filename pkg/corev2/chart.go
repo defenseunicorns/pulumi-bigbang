@@ -3,10 +3,10 @@ package v2
 import (
 	"fmt"
 
+	"github.com/defenseunicorns/pulumi-bigbang/pkg/api"
+	"github.com/defenseunicorns/pulumi-bigbang/pkg/k8s"
 	"github.com/pulumi/pulumi-kubernetes/sdk/v3/go/kubernetes/helm/v3"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
-	"github.com/runyontr/pulumi-bigbang/pkg/api"
-	"github.com/runyontr/pulumi-bigbang/pkg/k8s"
 )
 
 type Chart struct {

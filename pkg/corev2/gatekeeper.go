@@ -1,8 +1,8 @@
 package v2
 
 import (
+	"github.com/defenseunicorns/pulumi-bigbang/pkg/api"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
-	"github.com/runyontr/pulumi-bigbang/pkg/api"
 
 	helmv3 "github.com/pulumi/pulumi-kubernetes/sdk/v3/go/kubernetes/helm/v3"
 )

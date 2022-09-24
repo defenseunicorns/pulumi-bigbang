@@ -3,8 +3,8 @@ package v2
 import (
 	"fmt"
 
+	"github.com/defenseunicorns/pulumi-bigbang/pkg/api"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
-	"github.com/runyontr/pulumi-bigbang/pkg/api"
 )
 
 func DeployBigBang(ctx *pulumi.Context, configuration api.Configuration) ([]pulumi.Resource, error) {

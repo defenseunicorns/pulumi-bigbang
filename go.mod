@@ -1,4 +1,4 @@
-module github.com/runyontr/pulumi-bigbang
+module github.com/defenseunicorns/pulumi-bigbang
 
 go 1.19
 

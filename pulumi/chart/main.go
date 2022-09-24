@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 
+	"github.com/defenseunicorns/pulumi-bigbang/pkg/api"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
-	"github.com/runyontr/pulumi-bigbang/pkg/api"
 
-	v2 "github.com/runyontr/pulumi-bigbang/pkg/corev2"
+	v2 "github.com/defenseunicorns/pulumi-bigbang/pkg/corev2"
 )
 
 func main() {
