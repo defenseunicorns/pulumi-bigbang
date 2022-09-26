@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/defenseunicorns/pulumi-bigbang/pkg/api"
+	"github.com/pulumi/pulumi/sdk/v3/go/auto"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
 
@@ -11,6 +13,12 @@ import (
 )
 
 func main() {
+	// This is hard coded to work for me
+	bigbang, err := ReadBigBang("runyontr/bb/local-bigbang", "bb")
+	if err != nil {
+		panic(err)
+	}
+
 	pulumi.Run(func(ctx *pulumi.Context) error {
 
 		//make the config
@@ -36,21 +44,6 @@ func main() {
 		repo := conf.Get("repo")
 		if repo == "" {
 			repo = "https://charts.helm.sh/stable"
-		}
-
-		stack := conf.Get("stack")
-		if stack == "" {
-			stack = "k3d"
-		}
-
-		project := conf.Get("project")
-		if project == "" {
-			project = "bb"
-		}
-
-		bigbang, err := ReadBigBang(ctx, stack, project)
-		if err != nil {
-			return err
 		}
 
 		ns, secret, err := v2.DeployNamespace(ctx, namespace, bigbang.Configuration.ServiceMesh.Name == api.ServieMeshIstio,
@@ -80,29 +73,28 @@ func main() {
 	})
 }
 
-func ReadBigBang(ctx *pulumi.Context, stack, project string) (api.BigBang, error) {
+func ReadBigBang(stack, project string) (api.BigBang, error) {
 
-	s, err := pulumi.NewStackReference(ctx, stack, &pulumi.StackReferenceArgs{})
+	// s, err := pulumi.NewStackReference(ctx, stack, &pulumi.StackReferenceArgs{})
+	ctx := context.Background()
+	bigbang, err := auto.UpsertStackInlineSource(ctx, stack, project, nil)
 
+	outs, err := bigbang.Outputs(ctx)
 	if err != nil {
+		fmt.Printf("Error getting outputs :%v\n", err)
 		return api.BigBang{
 			Configuration: api.Configuration{},
 			Packages:      make([]api.BigBangPackage, 0),
 		}, nil
 	}
-
-	if err != nil {
-		fmt.Printf("Error reading the Bigbang Stack: %v\n", err)
-		return api.BigBang{}, err
+	fmt.Printf("Got the outputs, but here they are: %v\n", outs)
+	for k, v := range outs {
+		fmt.Printf("%v: %v\n", k, v)
 	}
-
-	fmt.Printf("Got the outputs, but here they are: %v\n", s.Outputs)
-	return s.Outputs.ApplyT(func(o map[string]interface{}) (api.BigBang, error) {
-		config := api.NewConfiguration(o["bigbang"].Value.(string))
-		return api.BigBang{
-			Configuration: config,
-			Packages:      make([]api.BigBangPackage, 0),
-		}, nil
-	})
+	config := api.NewConfiguration(outs["bigbang"].Value.(string))
+	return api.BigBang{
+		Configuration: config,
+		Packages:      make([]api.BigBangPackage, 0),
+	}, nil
 
 }
