@@ -87,10 +87,6 @@ func ReadBigBang(stack, project string) (api.BigBang, error) {
 			Packages:      make([]api.BigBangPackage, 0),
 		}, nil
 	}
-	fmt.Printf("Got the outputs, but here they are: %v\n", outs)
-	for k, v := range outs {
-		fmt.Printf("%v: %v\n", k, v)
-	}
 	config := api.NewConfiguration(outs["bigbang"].Value.(string))
 	return api.BigBang{
 		Configuration: config,
