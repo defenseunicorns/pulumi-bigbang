@@ -13,11 +13,6 @@ import (
 )
 
 func main() {
-	// This is hard coded to work for me
-	bigbang, err := ReadBigBang("runyontr/bb/local-bigbang", "bb")
-	if err != nil {
-		panic(err)
-	}
 
 	pulumi.Run(func(ctx *pulumi.Context) error {
 
@@ -33,7 +28,7 @@ func main() {
 		file := conf.Get("file")
 
 		//chart name
-		chart := conf.Require("chart")
+		chart := conf.Require("name")
 
 		name := conf.Get("name")
 		if name == "" {
@@ -44,6 +39,22 @@ func main() {
 		repo := conf.Get("repo")
 		if repo == "" {
 			repo = "https://charts.helm.sh/stable"
+		}
+
+		stack := conf.Get("stack")
+		if stack == "" {
+			stack = "bigbang/bigbang/runyontr"
+		}
+
+		project, _ := conf.Try("project")
+		if project == "" {
+			project = "bigbang/bigbang"
+		}
+
+		// This is hard coded to work for me
+		bigbang, err := ReadBigBang(stack, project)
+		if err != nil {
+			return err
 		}
 
 		ns, secret, err := v2.DeployNamespace(ctx, namespace, bigbang.Configuration.ServiceMesh.Name == api.ServieMeshIstio,
@@ -92,5 +103,4 @@ func ReadBigBang(stack, project string) (api.BigBang, error) {
 		Configuration: config,
 		Packages:      make([]api.BigBangPackage, 0),
 	}, nil
-
 }
