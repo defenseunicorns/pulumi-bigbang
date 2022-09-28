@@ -2,7 +2,10 @@ package v2
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
+	"net/http"
+	"strings"
 
 	"github.com/defenseunicorns/pulumi-bigbang/crds/kubernetes/networking/v1beta1"
 	"github.com/defenseunicorns/pulumi-bigbang/pkg/api"
@@ -134,16 +137,55 @@ func (g Istio) Deploy(ctx *pulumi.Context, bb api.BigBang, deps ...pulumi.Resour
 	for _, gateway := range bb.Configuration.ServiceMesh.Gateways {
 		//need to make a secret
 		if gateway.Tls.KeyFile != "" && gateway.Tls.CertFile != "" {
-			key, err := ioutil.ReadFile(gateway.Tls.KeyFile)
-			if err != nil {
-				ctx.Log.Error(fmt.Sprintf("Error reading Key File %v: %v", gateway.Tls.KeyFile, err), nil)
+
+			if strings.HasPrefix(gateway.Tls.KeyFile, "http") {
+				response, err := http.Get(gateway.Tls.KeyFile) //use package "net/http"
+				if err != nil {
+					ctx.Log.Error(fmt.Sprintf("Error reading %v: %v", gateway.Tls.KeyFile, err), nil)
+					continue
+				}
+
+				defer response.Body.Close()
+
+				b, err := io.ReadAll(response.Body)
+				// b, err := ioutil.ReadAll(resp.Body)  Go.1.15 and earlier
+				if err != nil {
+					ctx.Log.Error(fmt.Sprintf("Error reading %v: %v", gateway.Tls.KeyFile, err), nil)
+					continue
+				}
+
+				gateway.Tls.Key = string(b)
+
+				response2, err := http.Get(gateway.Tls.CertFile) //use package "net/http"
+				if err != nil {
+					ctx.Log.Error(fmt.Sprintf("Error reading %v: %v", gateway.Tls.CertFile, err), nil)
+					continue
+				}
+
+				defer response2.Body.Close()
+
+				b, err = io.ReadAll(response2.Body)
+				// b, err := ioutil.ReadAll(resp.Body)  Go.1.15 and earlier
+				if err != nil {
+					ctx.Log.Error(fmt.Sprintf("Error reading %v: %v", gateway.Tls.CertFile, err), nil)
+					continue
+				}
+
+				gateway.Tls.Cert = string(b)
+
+			} else {
+
+				key, err := ioutil.ReadFile(gateway.Tls.KeyFile)
+				if err != nil {
+					ctx.Log.Error(fmt.Sprintf("Error reading Key File %v: %v", gateway.Tls.KeyFile, err), nil)
+				}
+				gateway.Tls.Key = string(key)
+				cert, err := ioutil.ReadFile(gateway.Tls.CertFile)
+				if err != nil {
+					ctx.Log.Error(fmt.Sprintf("Error reading Cert File %v: %v", gateway.Tls.CertFile, err), nil)
+				}
+				gateway.Tls.Cert = string(cert)
 			}
-			gateway.Tls.Key = string(key)
-			cert, err := ioutil.ReadFile(gateway.Tls.CertFile)
-			if err != nil {
-				ctx.Log.Error(fmt.Sprintf("Error reading Cert File %v: %v", gateway.Tls.CertFile, err), nil)
-			}
-			gateway.Tls.Cert = string(cert)
 		}
 		certName := fmt.Sprintf("%s/%s-cert", defaultIstioNamespace, gateway.Name)
 
