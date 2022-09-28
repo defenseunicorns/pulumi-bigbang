@@ -156,12 +156,17 @@ func (g Kyverno) Deploy(ctx *pulumi.Context, bb api.BigBang, deps ...pulumi.Reso
 	dockerRegistries := make([]string, 0)
 	hostFilesystem := make([]string, 0)
 	hostNetworkNamespcae := make([]string, 0)
+	root := make([]string, 0)
+	priv := make([]string, 0)
 	for _, p := range bb.Packages {
 		violations := p.GetViolations()
 
 		dockerRegistries = append(dockerRegistries, violations.AllowedDockerRegistries...)
 		hostFilesystem = append(hostFilesystem, violations.AllowedHostFilesystem...)
 		hostNetworkNamespcae = append(hostNetworkNamespcae, violations.NoHostNamespace...)
+
+		root = append(root, violations.RunAsRoot...)
+		priv = append(priv, violations.Privileged...)
 		// ctx.Log.Error(fmt.Sprintf("Number of Host Namespace Exceptions: %v", len(hostNetworkNamespcae)), nil)
 	}
 
@@ -217,10 +222,48 @@ func (g Kyverno) Deploy(ctx *pulumi.Context, bb api.BigBang, deps ...pulumi.Reso
 			},
 		})
 	}
+	privViolations := make(pulumi.MapArray, 0)
+	for _, p := range priv {
+		parts := strings.Split(p, "/")
+		if len(parts) != 2 {
+			continue
+		}
+
+		privViolations = append(privViolations, pulumi.Map{
+			"resources": pulumi.Map{
+				"names":      pulumi.ToStringArray([]string{parts[1]}),
+				"namespaces": pulumi.ToStringArray([]string{parts[0]}),
+			},
+		})
+	}
+	rootViolations := make(pulumi.MapArray, 0)
+	for _, r := range root {
+		parts := strings.Split(r, "/")
+		if len(parts) != 2 {
+			continue
+		}
+
+		rootViolations = append(rootViolations, pulumi.Map{
+			"resources": pulumi.Map{
+				"names":      pulumi.ToStringArray([]string{parts[1]}),
+				"namespaces": pulumi.ToStringArray([]string{parts[0]}),
+			},
+		})
+	}
 
 	valuesPolicy["policies"].(pulumi.Map)["disallow-host-namespaces"] = pulumi.Map{
 		"exclude": pulumi.Map{
 			"any": hostNamespaceViolations,
+		},
+	}
+	valuesPolicy["policies"].(pulumi.Map)["disallow-privileged-containers"] = pulumi.Map{
+		"exclude": pulumi.Map{
+			"any": privViolations,
+		},
+	}
+	valuesPolicy["policies"].(pulumi.Map)["require-non-root-user"] = pulumi.Map{
+		"exclude": pulumi.Map{
+			"any": rootViolations,
 		},
 	}
 	if bb.Configuration.Development {
@@ -242,9 +285,7 @@ func (g Kyverno) Deploy(ctx *pulumi.Context, bb api.BigBang, deps ...pulumi.Reso
 				"any": hostNamespaceViolations,
 			},
 		}
-		valuesPolicy["policies"].(pulumi.Map)["require-non-root-user"] = pulumi.Map{
-			"validationFailureAction": pulumi.String("audit"),
-		}
+		valuesPolicy["policies"].(pulumi.Map)["require-non-root-user"].(pulumi.Map)["validationFailureAction"] = pulumi.String("audit")
 		valuesPolicy["policies"].(pulumi.Map)["require-non-root-group"] = pulumi.Map{
 			"validationFailureAction": pulumi.String("audit"),
 		}

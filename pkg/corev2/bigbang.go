@@ -16,9 +16,9 @@ func DeployBigBang(ctx *pulumi.Context, configuration api.Configuration) ([]pulu
 	// Get all the packages?
 	policy := GetPolicyEngine(configuration.Policy.Name)
 	serviceMesh := GetServiceMesh(configuration.ServiceMesh.Name, configuration.ServiceMesh)
-
+	runtime := GetRuntimeSecurity(configuration.RuntimeSecurity.Name, configuration.RuntimeSecurity)
 	bb := api.BigBang{
-		Packages:      []api.BigBangPackage{policy, serviceMesh},
+		Packages:      []api.BigBangPackage{policy, serviceMesh, runtime},
 		Configuration: configuration,
 	}
 	ctx.Export("bigbang", pulumi.String(bb.Configuration.ToString()))
