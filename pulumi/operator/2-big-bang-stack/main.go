@@ -54,10 +54,11 @@ func main() {
 				OtherFields: kubernetes.UntypedArgs{
 					"spec": map[string]interface{}{
 						"accessTokenSecret": accessToken.Metadata.Name(),
-						"stack":             "mikevanhemert/bb",
+						"stack":             "bigbang/bigbang/runyontr-operator",
 						"projectRepo":       "https://github.com/defenseunicorns/pulumi-bigbang",
-						"branch":            "pulumi-chart",
-						"repoDir":           "/pulumi/bigbang",
+						// "branch":            "refs/remotes/origin/pulumi-chart",
+						"commit":  "5fd94f2c364d182990b49f1a2decfd3c7628351b",
+						"repoDir": "/pulumi/bigbang",
 						// "envSecrets":        []interface{}{repo1Creds.Metadata.Name()},
 						"config": map[string]string{
 							"policy.enforce":                       "true",
@@ -66,9 +67,10 @@ func main() {
 							"serviceMesh.name":                     "istio",
 							"serviceMesh.gateways[0].domain":       "bigbang.dev",
 							"serviceMesh.gateways[0].name":         "public",
-							"serviceMesh.gateways[0].tls.keyFile":  "/home/mikaelvanhemert/Documents/repos/hncd/pulumi-bigbang/public.key",
-							"serviceMesh.gateways[0].tls.certFile": "/home/mikaelvanhemert/Documents/repos/hncd/pulumi-bigbang/public.cert",
+							"serviceMesh.gateways[0].tls.keyFile":  "https://raw.githubusercontent.com/defenseunicorns/pulumi-bigbang/main/public.key",
+							"serviceMesh.gateways[0].tls.certFile": "https://raw.githubusercontent.com/defenseunicorns/pulumi-bigbang/main/public.cert",
 							"development":                          "true",
+							"runtimeSecurity.name":                 "neuvector",
 							"bigbang:username":                     username,
 							"bigbang:password":                     password,
 						},
