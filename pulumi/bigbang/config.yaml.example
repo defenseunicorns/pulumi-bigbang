@@ -1,0 +1,21 @@
+policy:
+  enforce: true
+  name: kyverno
+monitoring:
+  name: prometheus
+runtimeSecurity:
+  name: neuvector
+serviceMesh:
+  name: istio
+  gateways:
+  - domain: bigbang.dev
+    name: public
+    tls:
+      keyFile: https://raw.githubusercontent.com/defenseunicorns/pulumi-bigbang/main/public.key
+      certFile: https://raw.githubusercontent.com/defenseunicorns/pulumi-bigbang/main/public.cert
+development: true
+global:
+  imagePullSecrets:
+  - registry: registry1.dso.mil
+    username: USERNAME
+    password: PASSWORD
