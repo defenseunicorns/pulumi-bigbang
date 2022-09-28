@@ -72,6 +72,8 @@ type Violations struct {
 	VolumeTypes []string
 
 	RunAsRoot []string
+
+	Privileged []string
 }
 
 type Logging int
@@ -142,12 +144,12 @@ const (
 	MonitoringNone       Monitoring = "none"
 )
 
-type RuntimeSecurity int
+type RuntimeSecurity string
 
 const (
-	RuntimeSecurityNeuvector RuntimeSecurity = iota
-	RuntimeSecurityPrismaCloud
-	RuntimeSecurityNone
+	RuntimeSecurityNeuvector   RuntimeSecurity = "neuvector"
+	RuntimeSecurityPrismaCloud RuntimeSecurity = "prisma"
+	RuntimeSecurityNone        RuntimeSecurity = "none"
 )
 
 type PolicyConfiguration struct {
