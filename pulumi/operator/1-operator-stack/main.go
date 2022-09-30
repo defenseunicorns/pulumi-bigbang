@@ -4,8 +4,8 @@ import (
 	"errors"
 	"io"
 	"io/ioutil"
-	"net/url"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 
@@ -37,6 +37,23 @@ func main() {
 		if err != nil {
 			return err
 		}
+		_, err = rbacv1.NewClusterRoleBinding(ctx,
+			"operator-clusterrole-binding",
+			&rbacv1.ClusterRoleBindingArgs{
+				RoleRef: rbacv1.RoleRefArgs{
+					ApiGroup: pulumi.String("rbac.authorization.k8s.io"),
+					Kind:     pulumi.String("ClusterRole"),
+					Name:     pulumi.String("cluster-admin"),
+				},
+				Subjects: rbacv1.SubjectArray{
+					&rbacv1.SubjectArgs{
+						Kind:      pulumi.String("ServiceAccount"),
+						Name:      operatorServiceAccount.Metadata.Name().Elem(),
+						Namespace: operatorServiceAccount.Metadata.Namespace().Elem(),
+					},
+				},
+			},
+		)
 		operatorRole, err := rbacv1.NewRole(ctx, "operator-role", &rbacv1.RoleArgs{
 			Rules: rbacv1.PolicyRuleArray{
 				&rbacv1.PolicyRuleArgs{
@@ -266,7 +283,7 @@ func downloadFile(downloadUrl string) (string, func(), error) {
 		return "", noop, err
 	}
 	fileName := filepath.Base(u.Path)
-	
+
 	dir, err := ioutil.TempDir("", "")
 	if err != nil {
 		return "", noop, err
@@ -304,4 +321,3 @@ func downloadFile(downloadUrl string) (string, func(), error) {
 
 	return file.Name(), cleanup, nil
 }
-

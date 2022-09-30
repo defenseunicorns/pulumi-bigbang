@@ -20,7 +20,7 @@ func main() {
 	//try and read the state from the BigBang deployment
 
 	project := flag.String("project", "bigbang", "project name")
-	stack := flag.String("stack", "bigbang", "Stack name")
+	stack := flag.String("stack", "binary", "Stack name")
 	// namespace := flag.String("namespace", "", "Namespace to create")
 	destroy := flag.Bool("destroy", false, "cleanup namespace")
 	debug := flag.Bool("debug", false, "debug")

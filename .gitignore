@@ -1,3 +1,4 @@
 **config.yaml
 pulumi.*.yaml
 config.yaml
+cmd/bigbangv2/bigbang

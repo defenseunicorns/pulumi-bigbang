@@ -11,5 +11,7 @@ kubectl wait -n istio-system --for=delete deployment/public --timeout=60s
 helm delete -n istio-operator istio-operator
 helm delete -n kyverno kyverno-policies
 helm delete -n kyverno kyverno
+helm delete -n neuvector neuvector
+helm delete -n prisma prisma
 
-kubectl delete ns istio-system istio-operator kyverno podinfo wordpress
+kubectl delete ns istio-system istio-operator kyverno podinfo wordpress neuvector prisma

@@ -71,7 +71,7 @@ func (g Kyverno) Deploy(ctx *pulumi.Context, bb api.BigBang, deps ...pulumi.Reso
 		pc.Registry = bb.Configuration.ImagePullSecrets[0].Registry
 	}
 
-	DeployNamespace(ctx, namespace, bb.Configuration.ServiceMesh.Name != api.ServiceMeshNone, pc)
+	ns, secret, err := DeployNamespace(ctx, namespace, bb.Configuration.ServiceMesh.Name != api.ServiceMeshNone, pc)
 
 	//Prep the gatekeeper values based on what's been deployed
 
@@ -124,34 +124,19 @@ func (g Kyverno) Deploy(ctx *pulumi.Context, bb api.BigBang, deps ...pulumi.Reso
 	//deploy Kyverno Chart
 
 	releaseArgs := &helmv3.ReleaseArgs{
-		Chart:   pulumi.String(oci_kyverno_registry),
-		Version: pulumi.String(DEFUALT_KYVERNO_VERSION),
-		// RepositoryOpts: helmv3.RepositoryOptsArgs{
-		// 	Repo: pulumi.String(`oci://registry.dso.mil/platform-one/big-bang/bigbang/`),
-		// },
+		Chart:           pulumi.String(oci_kyverno_registry),
+		Version:         pulumi.String(DEFUALT_KYVERNO_VERSION),
 		CreateNamespace: pulumi.Bool(false),
 		Namespace:       pulumi.String(namespace),
 		Name:            pulumi.String("kyverno"),
-		// ValueYamlFiles: pulumi.NewAssetArchive(map[string]interface{}{
-		// 	"certs": pulumi.NewFileAsset("https://repo1.dso.mil/platform-one/big-bang/bigbang/-/raw/master/chart/ingress-certs.yaml"),
-		// }),
-		Values: values,
+		Values:          values,
 	}
 	//
-	release, err := helmv3.NewRelease(ctx, "kyverno", releaseArgs, pulumi.DependsOn(deps))
+	release, err := helmv3.NewRelease(ctx, "kyverno", releaseArgs, pulumi.DependsOn(append(deps, ns, secret)))
 	if err != nil {
 		return nil, err
 	}
 	ctx.Export("kyverno", release)
-	//wait for deployment to be healthy
-	// srv will only resolve after the redis chart is installed.
-
-	// crd, err := crdv1.GetCustomResourceDefinition(ctx, "clusterpolicies.kyverno.io", pulumi.ID("crds/clusterpolicies.kyverno.io"),
-	// 	&crdv1.CustomResourceDefinitionState{})
-	// if err != nil {
-	// 	ctx.Log.Error(fmt.Sprintf("Error getting CRD: %v\n", err), nil)
-	// }
-	// Kyverno Policies
 
 	dockerRegistries := make([]string, 0)
 	hostFilesystem := make([]string, 0)
@@ -304,27 +289,18 @@ func (g Kyverno) Deploy(ctx *pulumi.Context, bb api.BigBang, deps ...pulumi.Reso
 	}
 
 	releasePolicyArgs := &helmv3.ReleaseArgs{
-		Chart:   pulumi.String(oci_kyverno_policies_policies),
-		Version: pulumi.String(DEFAULT_KYVERNO_POLICY_VERSION),
-		// RepositoryOpts: helmv3.RepositoryOptsArgs{
-		// 	Repo: pulumi.String(`oci://registry.dso.mil/platform-one/big-bang/bigbang/`),
-		// },
+		Chart:           pulumi.String(oci_kyverno_policies_policies),
+		Version:         pulumi.String(DEFAULT_KYVERNO_POLICY_VERSION),
 		CreateNamespace: pulumi.Bool(false),
 		Namespace:       pulumi.String(namespace),
 		Name:            pulumi.String("kyverno-policies"),
-		// ValueYamlFiles: pulumi.NewAssetArchive(map[string]interface{}{
-		// 	"certs": pulumi.NewFileAsset("https://repo1.dso.mil/platform-one/big-bang/bigbang/-/raw/master/chart/ingress-certs.yaml"),
-		// }),
-		Values: valuesPolicy,
+		Values:          valuesPolicy,
 	}
-	// Deploy v9.6.0 version of the wordpress chart.
-	releasePolicy, err := helmv3.NewRelease(ctx, "kyverno-policies", releasePolicyArgs, pulumi.DependsOn(append(deps, release)))
-	//  helm install bigbang --create-namespace oci://registry.dso.mil/platform-one/big-bang/bigbang/bigbang --version 1.35.0 -n bigbang -f ./chart/ingress-certs.yaml -f dev/credentials.yaml
 
-	//TODO do something better here
+	releasePolicy, err := helmv3.NewRelease(ctx, "kyverno-policies", releasePolicyArgs, pulumi.DependsOn(append(deps, release, ns, secret)))
 
 	ctx.Export("kyverno-policy", releasePolicy)
 
-	return []pulumi.Resource{release, releasePolicy}, err
+	return []pulumi.Resource{release, releasePolicy, ns, secret}, err
 
 }

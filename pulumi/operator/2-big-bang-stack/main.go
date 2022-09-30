@@ -57,13 +57,15 @@ func main() {
 						"stack":             "bigbang/bigbang/runyontr-operator",
 						"projectRepo":       "https://github.com/defenseunicorns/pulumi-bigbang",
 						// "branch":            "refs/remotes/origin/pulumi-chart",
-						"commit":  "5fd94f2c364d182990b49f1a2decfd3c7628351b",
+						"commit": "4449509ae0734ac8537b4276d9ee697c8576b1d1",
+						// "branch":  "main",
 						"repoDir": "/pulumi/bigbang",
 						// "envSecrets":        []interface{}{repo1Creds.Metadata.Name()},
 						"config": map[string]string{
 							"policy.enforce":                       "true",
 							"policy.name":                          "kyverno",
 							"monitoring.name":                      "prometheus",
+							"foo":                                  "bar",
 							"serviceMesh.name":                     "istio",
 							"serviceMesh.gateways[0].domain":       "bigbang.dev",
 							"serviceMesh.gateways[0].name":         "public",
@@ -82,24 +84,3 @@ func main() {
 		return nil
 	})
 }
-
-// "policy:
-//     enforce: true
-//     name: kyverno
-// monitoring:
-//     name: prometheus
-// serviceMesh:
-//     name: istio
-//     gateways:
-//     - domain: bigbang.dev
-//         name: public
-//         tls:
-//             keyFile: /home/mikaelvanhemert/Documents/repos/hncd/pulumi-bigbang/public.key
-//             certFile: /home/mikaelvanhemert/Documents/repos/hncd/pulumi-bigbang/public.cert
-// development: true
-// global:
-//     imagePullSecrets:
-//     - registry: registry1.dso.mil
-//         username: MVanhemert
-//         password: kbYOz379ADJaq8hfCJfLGh2oVgmVcD9i
-// "
