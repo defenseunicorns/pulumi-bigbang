@@ -34,7 +34,7 @@ func main() {
 		*name = *chart
 	}
 
-	bigbang, err := ReadBigBang("bigbang", "bigbang")
+	bigbang, err := ReadBigBang("bigbang", "binary")
 
 	b, _ := json.MarshalIndent(bigbang, "", "\t")
 	fmt.Println(string(b))
@@ -123,7 +123,7 @@ func main() {
 func ReadBigBang(project, stack string) (api.BigBang, error) {
 
 	ctx := context.Background()
-	bigbang, err := auto.UpsertStackInlineSource(ctx, "bigbang", "bigbang", nil)
+	bigbang, err := auto.UpsertStackInlineSource(ctx, project, stack, nil)
 
 	if err != nil {
 		fmt.Printf("Error reading the Bigbang Stack: %v\n", err)
@@ -139,10 +139,7 @@ func ReadBigBang(project, stack string) (api.BigBang, error) {
 			Packages:      make([]api.BigBangPackage, 0),
 		}, nil
 	}
-	fmt.Printf("Got the outputs, but here they are: %v\n", outs)
-	for k, v := range outs {
-		fmt.Printf("%v: %v\n", k, v)
-	}
+
 	config := api.NewConfiguration(outs["bigbang"].Value.(string))
 	return api.BigBang{
 		Configuration: config,

@@ -85,6 +85,30 @@ func main() {
 		}
 
 		_, err = bbv2.DeployBigBang(ctx, *config)
+
+		ns, secret, err := bbv2.DeployNamespace(ctx, "podinfo", config.ServiceMesh.Name == api.ServieMeshIstio,
+			bbv2.PullCreds{
+				Username: config.ImagePullSecrets[0].Username,
+				Password: config.ImagePullSecrets[0].Password,
+				Registry: config.ImagePullSecrets[0].Registry,
+			})
+
+		if err != nil {
+			return err
+		}
+
+		ctx.Export("namespace", ns.Metadata.Name())
+
+		// Deploy the Chart
+		_, err = bbv2.DeployChart(ctx, bbv2.Chart{
+			Namespace: "podinfo",
+			Name:      "podinfo",
+			Chart:     "podinfo",
+			Version:   "*",
+			ValueFile: "",
+			Repo:      "https://stefanprodan.github.io/podinfo",
+		}, &api.BigBang{Configuration: *config}, ns, secret)
+
 		return err
 	})
 }
